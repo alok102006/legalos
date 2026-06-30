@@ -16,7 +16,7 @@ import Button from '@/design-system/components/Button';
 import Card from '@/design-system/components/Card';
 import RiskBadge from '@/design-system/components/RiskBadge';
 import Skeleton from '@/design-system/components/Skeleton';
-import Badge from '@/design-system/components/Badge';
+import { Badge } from '@/design-system/components/Badge';
 
 export const ContractDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();

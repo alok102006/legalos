@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   FileText, 
   Users, 
@@ -18,14 +18,23 @@ interface AppShellProps {
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   const navigation = [
     { name: 'Contract Intelligence', href: '/', icon: FileText, active: true },
-    { name: 'Vendor Intelligence', href: '/vendors', icon: Users, active: false, label: 'Coming Soon' },
-    { name: 'Legal Notice Center', href: '/notices', icon: Bell, active: false, label: 'Coming Soon' },
+    { name: 'Vendor Intelligence', href: '/vendors', icon: Users, active: true },
+    { name: 'Legal Notice Center', href: '/notices', icon: Bell, active: true },
     { name: 'Compliance Center', href: '/compliance', icon: Activity, active: false, label: 'Phase 2' },
     { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpen, active: false, label: 'Phase 2' },
   ];
+
+  const currentNav = navigation.find((item) => {
+    if (item.href === '/') {
+      return location.pathname === '/' || location.pathname.startsWith('/contracts');
+    }
+    return location.pathname.startsWith(item.href);
+  });
+  const activeTitle = currentNav ? `${currentNav.name} Workspace` : 'LegalOS Workspace';
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
@@ -106,7 +115,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         {/* Desktop Header */}
         <header className="hidden md:flex items-center justify-between bg-white border-b border-slate-200 px-8 py-4 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-800">
-            Contract Intelligence Workspace
+            {activeTitle}
           </h2>
           <div className="flex items-center gap-4">
             <span className="text-xs text-slate-500 font-medium">Production Build v1.0</span>

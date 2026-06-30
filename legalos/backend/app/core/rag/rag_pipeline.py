@@ -10,6 +10,7 @@ from app.core.llm import llm_client
 # Map workspaces to their respective vector collections
 WORKSPACE_COLLECTIONS = {
     "contract_intelligence": "contract_clauses",
+    "legal_notice_center": "legal_notices",
 }
 
 def ingest_document(

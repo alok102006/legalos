@@ -14,6 +14,10 @@ def init_collections() -> None:
         "contract_clauses": {
             "size": 384,
             "distance": qmodels.Distance.COSINE
+        },
+        "legal_notices": {
+            "size": 384,
+            "distance": qmodels.Distance.COSINE
         }
     }
     

@@ -38,3 +38,42 @@ export interface ContractDetail {
   created_at: string;
   clauses: Clause[];
 }
+
+export interface VendorCheck {
+  id: string;
+  gstin: string;
+  company_name: string | null;
+  is_valid: boolean | null;
+  registration_date: string | null;
+  trust_score: number | null;
+  fraud_flagged: boolean;
+  raw_mock_response: any;
+  checked_by: string | null;
+  checked_at: string;
+}
+
+export interface DraftReply {
+  id: string;
+  notice_id: string;
+  reply_text: string;
+  created_at: string;
+}
+
+export interface NoticeSummary {
+  id: string;
+  document_id: string | null;
+  notice_type: 'demand' | 'show_cause' | 'summons' | 'other' | null;
+  urgency: 'low' | 'medium' | 'high' | 'critical' | null;
+  created_at: string;
+  original_filename: string;
+}
+
+export interface NoticeDetail {
+  id: string;
+  document_id: string | null;
+  raw_text: string;
+  notice_type: 'demand' | 'show_cause' | 'summons' | 'other' | null;
+  urgency: 'low' | 'medium' | 'high' | 'critical' | null;
+  created_at: string;
+  replies: DraftReply[];
+}

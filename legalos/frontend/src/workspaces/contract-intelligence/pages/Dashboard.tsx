@@ -16,7 +16,7 @@ import { ContractSummary } from '@/api/types';
 import Button from '@/design-system/components/Button';
 import Card from '@/design-system/components/Card';
 import Skeleton from '@/design-system/components/Skeleton';
-import Badge from '@/design-system/components/Badge';
+import { Badge } from '@/design-system/components/Badge';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();

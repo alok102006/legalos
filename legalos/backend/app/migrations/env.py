@@ -8,6 +8,12 @@ from alembic import context
 from app.config import settings
 from app.shared.db.base import Base
 
+# Import all models here so that Alembic's target_metadata can discover them
+from app.shared.db.models import User, Document
+from app.workspaces.contract_intelligence.models import Contract, Clause, NegotiationSuggestion
+from app.workspaces.vendor_intelligence.models import VendorCheck
+from app.workspaces.legal_notice_center.models import Notice, DraftReply
+
 # Alembic config object
 config = context.config
 
@@ -39,6 +45,8 @@ def do_run_migrations(connection):
     connection.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto;"))
     connection.execute(text("CREATE SCHEMA IF NOT EXISTS core;"))
     connection.execute(text("CREATE SCHEMA IF NOT EXISTS contract_intelligence;"))
+    connection.execute(text("CREATE SCHEMA IF NOT EXISTS vendor_intelligence;"))
+    connection.execute(text("CREATE SCHEMA IF NOT EXISTS legal_notice_center;"))
     
     context.configure(
         connection=connection,

@@ -9,6 +9,8 @@ from app.core.embeddings.embedder import get_embedder
 from app.core.vectorstore.collections import init_collections
 from app.shared.exceptions import LegalOSException
 from app.workspaces.contract_intelligence.router import router as contract_router
+from app.workspaces.vendor_intelligence.router import router as vendor_router
+from app.workspaces.legal_notice_center.router import router as notice_router
 
 
 @asynccontextmanager
@@ -94,4 +96,16 @@ app.include_router(
     contract_router,
     prefix="/api/v1/contracts",
     tags=["Contract Intelligence"]
+)
+
+app.include_router(
+    vendor_router,
+    prefix="/api/v1/vendors",
+    tags=["Vendor Intelligence"]
+)
+
+app.include_router(
+    notice_router,
+    prefix="/api/v1/notices",
+    tags=["Legal Notice Center"]
 )
