@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    @apply h-full font-sans antialiased bg-slate-50 text-slate-900;
+  }
+  
+  /* Focus outline settings for WCAG AA compliance using standard CSS to avoid @apply issues */
+  *:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: #dbe5ff;
+    color: #1e3a8a;
+  }
+}
