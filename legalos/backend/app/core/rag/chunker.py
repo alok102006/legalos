@@ -12,49 +12,42 @@ def clean_text(text: str) -> str:
 def chunk_by_clause(text: str, max_chars: int = 4000) -> List[Dict[str, Any]]:
     """
     Splits legal contract text into clauses.
-    Attempts to identify numbered headings (e.g. '1. Scope', 'SECTION 3. term', 'ARTICLE IV')
+    Attempts to identify numbered headings (e.g. '1. Scope of Work', 'SECTION 3. term', 'ARTICLE IV')
     to split text into coherent clause boundaries.
     """
     # Normalize line endings
     text = text.replace('\r\n', '\n')
     
     # Define common clause headers
-    # E.g. "1. Scope", "Section 2.1", "Article X", "Definitions"
+    # E.g. "1. Scope of Work", "Section 2.1", "Article X", "Definitions"
     clause_header_regex = re.compile(
         r'^(?:'
-        r'(?:Section|SECTION|Article|ARTICLE|Clause|CLAUSE)\s+\d+(?:\.\d+)*'
-        r'|\d+\.\s+\w+'
-        r'|\d+\.\d+\s+\w+'
-        r'|[A-Z][A-Z\s,&\-\'\"]{5,30}:'
-        r')$',
-        re.MULTILINE
+        r'(?:Section|SECTION|Article|ARTICLE|Clause|CLAUSE)\s+\d+(?:\.\d+)*.*'
+        r'|\d+\.\s+.*'
+        r'|\d+\.\d+\s+.*'
+        r'|[A-Z][A-Z\s,&\-\'\"]{5,50}:?'
+        r')$'
     )
 
-    # Let's split by double newlines first to get paragraphs
-    paragraphs = text.split('\n\n')
-    if len(paragraphs) == 1:
-        # Fallback to single newlines if no double newlines
-        paragraphs = text.split('\n')
-        
+    lines = text.split('\n')
     chunks = []
     current_chunk = []
     current_length = 0
     clause_index = 0
 
-    for para in paragraphs:
-        cleaned_para = clean_text(para)
-        if not cleaned_para:
+    for line in lines:
+        cleaned_line = line.strip()
+        if not cleaned_line:
             continue
             
-        # Check if paragraph starts a new clause (either matches header regex or looks like a heading)
-        # Heading: short text (less than 120 chars) starting with number or matching regex
+        # Check if line starts a new clause
         is_new_clause = False
-        if len(cleaned_para) < 120:
-            if clause_header_regex.search(cleaned_para) or re.match(r'^(?:\d+|\([a-zA-Z0-9]+\))\s+[A-Z]', cleaned_para):
+        if len(cleaned_line) < 120:
+            if clause_header_regex.match(cleaned_line) or re.match(r'^(?:\d+|\([a-zA-Z0-9]+\))\s+[A-Z]', cleaned_line):
                 is_new_clause = True
 
         # If current chunk has content and we found a new clause, or current chunk exceeds length
-        if (is_new_clause and current_chunk) or (current_length + len(cleaned_para) > max_chars and current_chunk):
+        if (is_new_clause and current_chunk) or (current_length + len(cleaned_line) > max_chars and current_chunk):
             clause_text = "\n".join(current_chunk)
             chunks.append({
                 "clause_index": clause_index,
@@ -64,8 +57,8 @@ def chunk_by_clause(text: str, max_chars: int = 4000) -> List[Dict[str, Any]]:
             current_chunk = []
             current_length = 0
             
-        current_chunk.append(cleaned_para)
-        current_length += len(cleaned_para)
+        current_chunk.append(cleaned_line)
+        current_length += len(cleaned_line)
 
     # Append remaining chunk
     if current_chunk:

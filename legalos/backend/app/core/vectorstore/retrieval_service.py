@@ -57,9 +57,9 @@ def search(
             )
         q_filter = qmodels.Filter(must=must_conditions)
         
-    results = client.search(
+    results = client.query_points(
         collection_name=collection,
-        query_vector=query_vector,
+        query=query_vector,
         query_filter=q_filter,
         limit=top_k
     )
@@ -70,7 +70,7 @@ def search(
             score=r.score,
             payload=r.payload or {}
         )
-        for r in results
+        for r in results.points
     ]
 
 

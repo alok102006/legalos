@@ -2,6 +2,7 @@ import json
 import uuid
 import traceback
 from typing import List, Optional
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.rag import rag_pipeline
@@ -247,3 +248,43 @@ async def generate_clause_suggestion(
     )
     await session.commit()
     return suggestion
+
+
+async def delete_contract_and_document(session: AsyncSession, contract_id: uuid.UUID) -> None:
+    """Deletes contract, associated document from SQL, and associated points from Qdrant."""
+    from app.shared.db.models import Document
+    import os
+    
+    contract = await repository.get_contract_by_id(session, contract_id)
+    if not contract:
+        raise NotFoundException(f"Contract {contract_id} not found.")
+        
+    document_id = contract.document_id
+    
+    # 1. Delete vectors from Qdrant
+    try:
+        from app.core.vectorstore import retrieval_service
+        # Collection for contract intelligence is "contract_clauses"
+        retrieval_service.delete_by_document("contract_clauses", str(document_id))
+    except Exception as qdrant_err:
+        print(f"[SERVICE] Error deleting points from Qdrant for document {document_id}: {qdrant_err}")
+        
+    # 2. Delete file from disk
+    doc = await session.get(Document, document_id)
+    if doc and doc.storage_path:
+        try:
+            if os.path.exists(doc.storage_path):
+                os.remove(doc.storage_path)
+                print(f"[SERVICE] Deleted local file: {doc.storage_path}")
+        except Exception as disk_err:
+            print(f"[SERVICE] Error deleting file from disk: {disk_err}")
+            
+    # 3. Delete Document from PostgreSQL (cascades to Contract, Clause, Suggestions)
+    if doc:
+        await session.delete(doc)
+    else:
+        await session.delete(contract)
+        
+    await session.commit()
+    print(f"[SERVICE] Successfully deleted contract {contract_id} and document {document_id}")
+

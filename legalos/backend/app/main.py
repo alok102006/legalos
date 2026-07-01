@@ -39,6 +39,30 @@ async def lifespan(app: FastAPI):
         if settings.env == "prod":
             raise e
             
+    # 3. Seed mock users into the database
+    try:
+        from app.shared.auth.auth_service import MOCK_USERS
+        from app.shared.db.models import User
+        from app.shared.db.session import async_session_maker
+        from sqlalchemy import select
+        
+        async with async_session_maker() as session:
+            for stub in MOCK_USERS.values():
+                stmt = select(User).where(User.id == stub.id)
+                res = await session.execute(stmt)
+                db_user = res.scalar_one_or_none()
+                if not db_user:
+                    print(f"[LIFESPAN] Seeding mock user: {stub.full_name} ({stub.role})")
+                    db_user = User(
+                        id=stub.id,
+                        full_name=stub.full_name,
+                        role=stub.role
+                    )
+                    session.add(db_user)
+            await session.commit()
+    except Exception as e:
+        print(f"[LIFESPAN] Error seeding mock users: {e}")
+            
     print("[LIFESPAN] Startup sequence successfully finished.")
     yield
     print("[LIFESPAN] Shutting down application...")

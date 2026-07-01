@@ -9,9 +9,10 @@ import {
   ChevronRight, 
   AlertCircle, 
   CheckCircle2, 
-  Loader2 
+  Loader2,
+  Trash2
 } from 'lucide-react';
-import { uploadContract, listContracts } from '../api';
+import { uploadContract, listContracts, deleteContract } from '../api';
 import { ContractSummary } from '@/api/types';
 import Button from '@/design-system/components/Button';
 import Card from '@/design-system/components/Card';
@@ -24,6 +25,11 @@ export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Deletion state
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [contractToDelete, setContractToDelete] = useState<ContractSummary | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   // Upload State
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -43,6 +49,28 @@ export const Dashboard: React.FC = () => {
       setError(err?.response?.data?.detail || 'Failed to retrieve contracts.');
     } finally {
       if (showSkeleton) setLoading(false);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, contract: ContractSummary) => {
+    e.stopPropagation(); // Prevent navigation to detail page
+    setContractToDelete(contract);
+    setShowConfirmDelete(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!contractToDelete) return;
+    setDeleting(true);
+    try {
+      await deleteContract(contractToDelete.id);
+      setContracts(prev => prev.filter(c => c.id !== contractToDelete.id));
+      setShowConfirmDelete(false);
+      setContractToDelete(null);
+    } catch (err: any) {
+      console.error(err);
+      alert('Failed to delete contract.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -295,6 +323,16 @@ export const Dashboard: React.FC = () => {
                     <div className="sm:hidden">
                       {getStatusBadge(contract.status)}
                     </div>
+                    
+                    <button
+                      onClick={(e) => handleDeleteClick(e, contract)}
+                      disabled={deleting}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-slate-100 transition-colors cursor-pointer outline-none"
+                      title="Delete Contract"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+
                     {contract.status === 'analyzed' && (
                       <ChevronRight className="w-5 h-5 text-slate-400" />
                     )}
@@ -305,6 +343,48 @@ export const Dashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Deletion Confirmation Modal */}
+      {showConfirmDelete && contractToDelete && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-xl max-w-md w-full p-6 space-y-6">
+            <div className="flex items-start gap-3">
+              <div className="bg-red-50 p-2.5 rounded-lg text-red-600 flex-shrink-0">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-slate-800 text-lg">Delete Document?</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Are you sure you want to delete <strong>{contractToDelete.title || "this document"}</strong>? 
+                  This will permanently delete the file, all parsed clauses, risk assessments, and indexed vectors from Qdrant. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowConfirmDelete(false);
+                  setContractToDelete(null);
+                }}
+                disabled={deleting}
+                className="text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleConfirmDelete}
+                isLoading={deleting}
+                className="bg-red-600 hover:bg-red-700 text-white border-none text-xs"
+              >
+                Delete permanently
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

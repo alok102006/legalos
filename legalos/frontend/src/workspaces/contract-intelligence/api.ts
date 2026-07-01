@@ -31,3 +31,8 @@ export const generateSuggestion = async (
   );
   return response.data;
 };
+
+export const deleteContract = async (id: string): Promise<void> => {
+  await apiClient.delete(`/api/v1/contracts/${id}`);
+};
+

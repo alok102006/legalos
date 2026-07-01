@@ -260,13 +260,12 @@ export const ContractDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Right column: Inspector Panel */}
-        <div className="lg:col-span-1">
+         <div className="lg:col-span-1">
           {selectedClause ? (
-            <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm sticky top-6 space-y-6 flex flex-col h-[calc(100vh-140px)] max-h-[800px] overflow-y-auto">
+            <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm sticky top-6 space-y-6 flex flex-col h-auto">
               
               {/* Heading */}
-              <div className="border-b border-slate-100 pb-4 space-y-2 flex-shrink-0">
+              <div className="border-b border-slate-100 pb-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     Clause Inspector
@@ -281,7 +280,7 @@ export const ContractDetail: React.FC = () => {
               {/* Raw segment */}
               <div className="space-y-2">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Source Content</h4>
-                <div className="bg-slate-50 p-4 rounded text-xs font-medium text-slate-700 leading-relaxed border border-slate-100 max-h-40 overflow-y-auto">
+                <div className="bg-slate-50 p-4 rounded text-xs font-medium text-slate-700 leading-relaxed border border-slate-100 max-h-60 overflow-y-auto">
                   {selectedClause.raw_text}
                 </div>
               </div>
@@ -297,8 +296,8 @@ export const ContractDetail: React.FC = () => {
               )}
 
               {/* Suggestions Panel */}
-              <div className="space-y-4 pt-4 border-t border-slate-100 flex-1 flex flex-col min-h-0">
-                <div className="flex justify-between items-center flex-shrink-0">
+              <div className="space-y-4 pt-4 border-t border-slate-100 flex flex-col">
+                <div className="flex justify-between items-center">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                     <Sparkles className="w-3.5 h-3.5 text-blue-500" />
                     Negotiation Recommendation
@@ -308,7 +307,7 @@ export const ContractDetail: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex-1 overflow-y-auto pr-1">
+                <div className="pr-1">
                   {selectedClause.suggestions.length > 0 ? (
                     <div className="space-y-3">
                       {selectedClause.suggestions.map((s) => (

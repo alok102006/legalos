@@ -102,3 +102,15 @@ async def generate_clause_suggestion(
 ):
     """Generates a negotiation recommendation using context-enhanced RAG generation."""
     return await service.generate_clause_suggestion(db, id, clause_id)
+
+
+@router.delete("/{id}")
+async def delete_contract(
+    id: uuid.UUID,
+    db: AsyncSession = Depends(get_db_session),
+    current_user: UserStub = Depends(get_current_user)
+):
+    """Deletes a contract and its associated database and vector store records."""
+    await service.delete_contract_and_document(db, id)
+    return {"status": "success", "message": "Contract deleted successfully"}
+
